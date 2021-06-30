@@ -30,3 +30,12 @@
     flex: 1 0 auto;
   }
   
+  img{
+    max-width: 30px;
+    max-height: 30px;
+    padding-right: 10px;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}

@@ -42,7 +42,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTreeModule} from '@angular/material/tree';
 import {OverlayModule} from '@angular/cdk/overlay';
-import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './auth/login/login.component';
+import { SigninComponent } from './auth/signin/signin.component';
 
 
 @NgModule({
@@ -91,9 +92,11 @@ import { LoginComponent } from './login/login.component';
     OverlayModule,
     PortalModule,
     ScrollingModule,
+    // MatFormFieldModule
   ],
   declarations: [
-    LoginComponent
+    // LoginComponent,
+    // SigninComponent
   ]
 })
 export class CoreMaterialModule {}

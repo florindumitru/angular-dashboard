@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ToggleMenuService } from '../services/toggle-menu.service';
 
 @Component({
   selector: 'app-header',
@@ -6,10 +7,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-
-  constructor() { }
+  constructor(
+    private toggleMenuService: ToggleMenuService
+  ) { }
 
   ngOnInit(): void {
+    this.toggleSidenav()
   }
-
+  toggleSidenav() {
+    this.toggleMenuService.toggleTheMenu();
+  }
 }
