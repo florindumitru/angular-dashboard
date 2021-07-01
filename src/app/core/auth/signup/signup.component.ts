@@ -12,15 +12,16 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 }
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  selector: 'app-signup',
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.scss']
 })
-export class LoginComponent implements OnInit {
-  
+export class SignupComponent implements OnInit {
+
   constructor(
     public authService: AuthService
   ) { }
+
 
   emailFormControl = new FormControl('', [
     Validators.required,
@@ -31,6 +32,12 @@ export class LoginComponent implements OnInit {
     Validators.required
   ]);
 
+
+  rePasswordFormControl = new FormControl('', [
+    Validators.required
+  ]);
+
+
   matcher = new MyErrorStateMatcher();
 
 
@@ -38,10 +45,11 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  login() {
+  signUp() {
     // this.emailFormControl.value;
-    console.log(this.emailFormControl.value, this.passwordFormControl.value);
-    this.authService.SignIn(this.emailFormControl.value,  this.passwordFormControl.value);
+    console.log(this.emailFormControl.value, this.passwordFormControl.value, this.rePasswordFormControl.value);
+    this.authService.SignUp(this.emailFormControl.value, this.passwordFormControl.value);
   }
+
 
 }

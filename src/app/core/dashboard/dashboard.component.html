@@ -1,0 +1,54 @@
+<mat-card>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Filter" (keyup)="applyFilter($event)">
+    </mat-form-field>
+      <div class="edit-users mat-elevation-z8">
+        <table mat-table class="full-width-table" matSort aria-label="Elements" [dataSource]="dataSource">
+
+          <ng-container matColumnDef="subdomain">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Subdomain Name</th>
+            <td mat-cell *matCellDef="let row;">
+              <input [formControl]="row.validator.get('lastName')" type="text" matInput>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="ipfsLink">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>IPFS link</th>
+            <td mat-cell *matCellDef="let row;">
+              <input [formControl]="row.validator.get('firstName')" type="text" matInput>
+            </td>
+          </ng-container>
+  
+
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let row; let i = index">
+              <button *ngIf="row.editable" mat-icon-button  color="primary" focusable="false" (click)="startEdit()">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button *ngIf="!row.editable" mat-icon-button  color="primary" focusable="false" (click)="confirmEditCreate()">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" focusable="false" (click)="cancelOrDelete()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+  
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator #paginator
+            [length]="dataSource.data.length"
+            [pageIndex]="0"
+            [pageSize]="5"
+            [pageSizeOptions]="[5, 10, 20]">
+        </mat-paginator>
+      </div>
+  </mat-card>
+  
+  
+  
+  <!-- Copyright 2019 Google Inc. All Rights Reserved.
+      Use of this source code is governed by an MIT-style license that
+      can be found in the LICENSE file at http://angular.io/license -->
