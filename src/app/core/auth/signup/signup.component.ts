@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
-import {ErrorStateMatcher} from '@angular/material/core';
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { AuthService } from '../services/auth.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -31,7 +31,6 @@ export class SignupComponent implements OnInit {
   passwordFormControl = new FormControl('', [
     Validators.required
   ]);
-
 
   rePasswordFormControl = new FormControl('', [
     Validators.required

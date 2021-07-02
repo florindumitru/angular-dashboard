@@ -2,8 +2,10 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatSort} from '@angular/material/sort';
+import { UserDomains } from 'src/app/shared/models/user-domains';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { HttpFirestoreService } from '../services/http/http-firestore.service';
 
 export interface EditUserDto {
   id: number;
@@ -30,6 +32,14 @@ export interface EditUser {
 })
 export class DashboardComponent implements OnInit {
 
+  subdomainFormControl = new FormControl('', [
+    Validators.required,
+  ]);
+
+  ipfsLinkFormControl = new FormControl('', [
+    Validators.required
+  ]);
+
   ELEMENT_DATA_FROM_BACK: EditUserDto[] = [
     {id: 1, firstName: 'Ion', lastName: 'Popescu', username: 'ipopescu', email: 'ion.popescu@domain.com', project: 'bench', team: ''},
     {id: 2, firstName: 'Ion', lastName: 'Vasile', username: 'ivasile', email: 'ion.vasile@domain.com', project: 'bench', team: ''},
@@ -52,7 +62,9 @@ export class DashboardComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort!: MatSort;
   editForm!: FormGroup;
 
-  constructor() {
+  constructor(
+    private httpFirestoreSv: HttpFirestoreService
+  ) {
     const editForm = (e:any) => new FormGroup({
       firstName: new FormControl(e.firstName,Validators.required),
       lastName: new FormControl(e.lastName,Validators.required),
@@ -71,6 +83,10 @@ export class DashboardComponent implements OnInit {
     this.dataSource = new MatTableDataSource(this.ELEMENT_DATA.slice());
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+
+
+
+    this.getUserDomains();
   }
 
   applyFilter(event: any) {
@@ -93,6 +109,24 @@ export class DashboardComponent implements OnInit {
   }
 
   cancelOrDelete() {
+  }
+
+
+  addUserDomain() {
+    let subdomain = this.subdomainFormControl.value;
+    let ipfsLink = this.ipfsLinkFormControl.value;
+    console.log(subdomain, ipfsLink);
+    let userDomain = new UserDomains('',subdomain, ipfsLink, Date.now().toString());
+    let pureDomainObj =Object.assign({}, userDomain);
+    this.httpFirestoreSv.addUserDomains(pureDomainObj);
+  }
+
+  getUserDomains() {
+    this.httpFirestoreSv.getUserDomains().subscribe(res => {
+      console.log(res);
+    }, error=> {
+      console.error(error);
+    });
   }
 
 }

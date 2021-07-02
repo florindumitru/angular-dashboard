@@ -41,6 +41,7 @@ export class AuthService {
           this.router.navigate(['main']);
         });
         this.SetUserData(result.user);
+        console.log(result.user);
       }).catch((error: { message: any; }) => {
         window.alert(error.message)
       })
