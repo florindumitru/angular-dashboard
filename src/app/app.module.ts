@@ -23,7 +23,7 @@ import { SideMenuComponent } from './core/side-menu/side-menu.component';
 import { DashboardComponent } from './core/dashboard/dashboard.component';
 import { AccountComponent } from './core/account/account.component';
 import { ChangePasswordComponent } from './core/auth/change-password/change-password.component';
-
+import { ToastNotificationsModule } from "ngx-toast-notifications";
 
 @NgModule({
   declarations: [
@@ -48,7 +48,8 @@ import { ChangePasswordComponent } from './core/auth/change-password/change-pass
     AngularFireModule.initializeApp(environment.firebase, 'app-ipds'),
     AngularFirestoreModule, // Only required for database features
     AngularFireAuthModule, // Only required for auth features,
-    AngularFireStorageModule // Only required for storage features
+    AngularFireStorageModule, // Only required for storage features,
+    ToastNotificationsModule
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },

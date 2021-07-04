@@ -1,28 +1,13 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
-import {MatSort} from '@angular/material/sort';
-import { UserDomains } from 'src/app/shared/models/user-domains';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { EditUserDomains, UserDomains } from 'src/app/shared/models/user-domains';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpFirestoreService } from '../services/http/http-firestore.service';
-
-export interface EditUserDto {
-  id: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-  project: string;
-  team: string;
-}
-
-export interface EditUser {
-  currentData?: EditUserDto;
-  originalData: EditUserDto;
-  editable: boolean;
-  validator: FormGroup;
-}
+import { ToastNotificationService, ToastServicePosition, ToastServiceType } from '../services/toast/toast-notification.service';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 
 @Component({
@@ -40,53 +25,43 @@ export class DashboardComponent implements OnInit {
     Validators.required
   ]);
 
-  ELEMENT_DATA_FROM_BACK: EditUserDto[] = [
-    {id: 1, firstName: 'Ion', lastName: 'Popescu', username: 'ipopescu', email: 'ion.popescu@domain.com', project: 'bench', team: ''},
-    {id: 2, firstName: 'Ion', lastName: 'Vasile', username: 'ivasile', email: 'ion.vasile@domain.com', project: 'bench', team: ''},
-    {id: 3, firstName: 'Gigel', lastName: 'Popescu', username: 'gpopescu', email: 'gigel.popescu@domain.com', project: 'bench', team: ''},
-    {id: 4, firstName: 'Dorel', lastName: 'Popescu', username: 'dpopescu', email: 'dorel.popescu@domain.com', project: 'bench', team: ''},
-    {id: 5, firstName: 'Cardel', lastName: 'Popescu', username: 'cpopescu', email: 'cardel.popescu@domain.com', project: 'bench', team: ''},
-    {id: 6, firstName: 'Alex', lastName: 'Popescu', username: 'apopescu', email: 'alex.popescu@domain.com', project: 'bench', team: ''},
-    {id: 7, firstName: 'Mihai', lastName: 'Popescu', username: 'mpopescu', email: 'mihai.popescu@domain.com', project: 'bench', team: ''}
-  ];
 
-  ELEMENT_DATA: EditUser[] = [];
+  ELEMENT_DATA_FROM_BACK: UserDomains[] = [];
 
-  // displayedColumns: string[] = ['id', 'firstName', 'lastName', 'username', 'email', 'project', 'team', 'action'];
+  ELEMENT_DATA: EditUserDomains[] = [];
+
+  // displayedColumns: string[] = ['subdomain', 'ipfsLink', 'datetime', 'action'];
   displayedColumns: string[] = ['subdomain', 'ipfsLink', 'action'];
 
-  dataSource: MatTableDataSource<EditUser> = new MatTableDataSource<EditUser>();
+  dataSource: MatTableDataSource<EditUserDomains> = new MatTableDataSource<EditUserDomains>();
   selected = 'option1';
 
-  @ViewChild(MatPaginator, {static: true}) paginator!: MatPaginator;
-  @ViewChild(MatSort, {static: true}) sort!: MatSort;
-  editForm!: FormGroup;
+  @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort!: MatSort;
+
+  editForm = (e: any) => new FormGroup({
+    subdomainName: new FormControl(e.subdomainName, Validators.required),
+    ipfsLink: new FormControl(e.ipfsLink, Validators.required),
+  });
+
 
   constructor(
-    private httpFirestoreSv: HttpFirestoreService
+    private httpFirestoreSv: HttpFirestoreService,
+    private toastNotificationSv: ToastNotificationService,
+    private afAuth: AngularFireAuth
   ) {
-    const editForm = (e:any) => new FormGroup({
-      firstName: new FormControl(e.firstName,Validators.required),
-      lastName: new FormControl(e.lastName,Validators.required),
-      username: new FormControl(e.username,Validators.required),
-      email: new FormControl(e.email,Validators.required),
-    });
-    this.ELEMENT_DATA_FROM_BACK.forEach(element => {
-      this.ELEMENT_DATA.push({currentData: element, 
-                              originalData: element, 
-                              editable: false, 
-                              validator: editForm(element)});
-    });
+
+    // this.getUserDomains();
   }
 
-  ngOnInit() {
-    this.dataSource = new MatTableDataSource(this.ELEMENT_DATA.slice());
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-
-
-
+   ngOnInit() {
+    console.log("init dashboards");
     this.getUserDomains();
+    // this.getUserDomainsById();
+
+    // let user = await this.afAuth.currentUser;
+    // let uid = user?.uid;
+    // console.log(user)
   }
 
   applyFilter(event: any) {
@@ -101,8 +76,23 @@ export class DashboardComponent implements OnInit {
     this.dataSource.data = data;
   }
 
-  confirmEditCreate() {
+  confirmEditCreate(editUserRow: EditUserDomains) {
+    if (!editUserRow.validator.valid) {
+      this.toastNotificationSv.showErrorToast('Invalid data', ToastServicePosition.topCenter);
+      return;
+    } else if (editUserRow.currentData) {
+      editUserRow.currentData.subdomainName = editUserRow.validator.value.subdomainName;
+      editUserRow.currentData.ipfsLink = editUserRow.validator.value.ipfsLink;
+      this.updateUserDomain(editUserRow.currentData);
+      this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
+    }
   }
+
+  updateUserDomain(userDomain: UserDomains) {
+    let pureDomainObj = Object.assign({}, userDomain);
+    this.httpFirestoreSv.updateUserDomains(pureDomainObj);
+  }
+
 
   startEdit() {
 
@@ -113,20 +103,64 @@ export class DashboardComponent implements OnInit {
 
 
   addUserDomain() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     let subdomain = this.subdomainFormControl.value;
     let ipfsLink = this.ipfsLinkFormControl.value;
     console.log(subdomain, ipfsLink);
-    let userDomain = new UserDomains('',subdomain, ipfsLink, Date.now().toString());
-    let pureDomainObj =Object.assign({}, userDomain);
+    let userDomain = new UserDomains('', user.uid ,subdomain, ipfsLink, Date.now().toString());
+    let pureDomainObj = Object.assign({}, userDomain);
     this.httpFirestoreSv.addUserDomains(pureDomainObj);
   }
 
+
+
+
   getUserDomains() {
-    this.httpFirestoreSv.getUserDomains().subscribe(res => {
-      console.log(res);
-    }, error=> {
+    this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
+      this.ELEMENT_DATA = [];
+      res.forEach((element: any) => {
+        this.ELEMENT_DATA.push({
+          currentData: element,
+          originalData: element,
+          editable: false,
+          validator: this.editForm(element)
+        });
+      });
+
+      this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }, error => {
       console.error(error);
     });
   }
 
+  getUserDomainsById() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.httpFirestoreSv.getUserDomainsByUid(user.uid).subscribe((res: any) => {
+      this.ELEMENT_DATA = [];
+      res.forEach((element: any) => {
+        this.ELEMENT_DATA.push({
+          currentData: element,
+          originalData: element,
+          editable: false,
+          validator: this.editForm(element)
+        });
+      });
+
+      this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }, error => {
+      console.error(error);
+    });
+  }
+
+
+  ngOnDestroy(){
+    console.log("destroy");
+    this.dataSource.data = [];
+    this.ELEMENT_DATA = [];
+    this.ELEMENT_DATA_FROM_BACK = [];
+  }
 }

@@ -8,17 +8,23 @@
       <ng-container matColumnDef="subdomain">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Subdomain Name</th>
         <td mat-cell *matCellDef="let row;">
-          <input [formControl]="row.validator.get('lastName')" type="text" matInput>
+          <input [formControl]="row.validator.get('subdomainName')" type="text" matInput>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="ipfsLink">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>IPFS link</th>
         <td mat-cell *matCellDef="let row;">
-          <input [formControl]="row.validator.get('firstName')" type="text" matInput>
+          <input [formControl]="row.validator.get('ipfsLink')" type="text" matInput>
         </td>
       </ng-container>
 
+      <!-- <ng-container matColumnDef="datetime">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Datetime</th>
+        <td mat-cell *matCellDef="let row;">
+          {{row.currentData.datetime}}
+        </td>
+      </ng-container> -->
 
       <ng-container matColumnDef="action">
         <th mat-header-cell *matHeaderCellDef>Action</th>
@@ -26,12 +32,12 @@
           <button *ngIf="row.editable" mat-icon-button color="primary" focusable="false" (click)="startEdit()">
             <mat-icon>edit</mat-icon>
           </button>
-          <button *ngIf="!row.editable" mat-icon-button color="primary" focusable="false" (click)="confirmEditCreate()">
+          <button *ngIf="!row.editable" mat-icon-button color="primary" focusable="false" (click)="confirmEditCreate(row)">
             <mat-icon>check</mat-icon>
           </button>
-          <button mat-icon-button color="warn" focusable="false" (click)="cancelOrDelete()">
+          <!-- <button mat-icon-button color="warn" focusable="false" (click)="cancelOrDelete()">
             <mat-icon>close</mat-icon>
-          </button>
+          </button> -->
         </td>
       </ng-container>
 
