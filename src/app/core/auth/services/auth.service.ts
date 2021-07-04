@@ -12,7 +12,7 @@ import { HttpFirestoreService } from '../../services/http/http-firestore.service
 })
 
 export class AuthService {
-  userData: any; // Save logged in user data
+  public userData: any; // Save logged in user data
 
   constructor(
     public afs: AngularFirestore,   // Inject Firestore service

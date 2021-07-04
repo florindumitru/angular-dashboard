@@ -1,24 +1,27 @@
 import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { UserDomains } from 'src/app/shared/models/user-domains';
 import { map } from 'rxjs/operators';
+import { AuthService } from '../../auth/services/auth.service';
+
+import { AngularFireAuth } from "@angular/fire/auth";
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { User } from 'src/app/shared/models/user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpFirestoreService {
+  private userDomainsCollection!: AngularFirestoreCollection<UserDomains>;
 
-  private userDomainsCollection: AngularFirestoreCollection<UserDomains>;
-
-  private userDomains: Observable<UserDomains>;
+  private userDomains!: Observable<UserDomains>;
 
   userDomainsDoc!: AngularFirestoreDocument<UserDomains>;
 
-  constructor(
+ constructor(
     private afs: AngularFirestore,
-    private afAuth: AngularFireAuth,
+    private afAuth: AngularFireAuth
   ) {
     // await afAuth.signInWithCredential(afAuth.currentUser);
     // this.userDomains = this.afs.collection('userDomains').valueChanges();
@@ -28,7 +31,8 @@ export class HttpFirestoreService {
     //   // console.log(res);
     // }));
 
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    // const user = JSON.parse(localStorage.getItem('user') || '{}');
+    // let user = authService.userData;
     // console.log(user);
 
     // this.userDomainsCollection = this.getUserDomainsByUid('19yluNizPyZQPybxnIBSGGWN6jH3');
@@ -36,22 +40,40 @@ export class HttpFirestoreService {
 
     // this.userDomainsCollection = this.afs.doc(`${user.uid}`).collection(`userDomains`, x => x.where("uid", "==", user.uid));
 
-    this.userDomainsCollection = this.afs.collection(`userDomains`, x => x.where("uid", "==", user.uid));
+    // let user = await this.afAuth.currentUser;
+    // if (this.user && this.user.uid) {
+    //   this.userDomainsCollection = this.afs.collection(`userDomains`, x => x.where("uid", "==", this.user.uid));
 
   
-    // this.userDomainsCollection =  this.afs.collection(`userDomains`, ref => ref.orderBy('datetime','asc'));
+    //   // this.userDomainsCollection =  this.afs.collection(`userDomains`, ref => ref.orderBy('datetime','asc'));
+    //   this.userDomains = this.userDomainsCollection.snapshotChanges().pipe(map((changes: any) => {
+    //     return changes.map((a: any) => {
+    //       const data = a.payload.doc.data() as UserDomains;
+    //       data.id = a.payload.doc.id;
+    //       return data;
+    //     });
+    //   }));
+    // }
+}
 
-    this.userDomains = this.userDomainsCollection.snapshotChanges().pipe(map((changes: any) => {
-      return changes.map((a: any) => {
-        const data = a.payload.doc.data() as UserDomains;
-        data.id = a.payload.doc.id;
-        return data;
-      });
-    }));
-
-  }
 
   getUserDomains() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user && user.uid) {
+      this.userDomainsCollection = this.afs.collection(`userDomains`, x => x.where("uid", "==", user.uid));
+
+  
+      // this.userDomainsCollection =  this.afs.collection(`userDomains`, ref => ref.orderBy('datetime','asc'));
+      this.userDomains = this.userDomainsCollection.snapshotChanges().pipe(map((changes: any) => {
+        return changes.map((a: any) => {
+          const data = a.payload.doc.data() as UserDomains;
+          data.id = a.payload.doc.id;
+          return data;
+        });
+      }));
+    } else {
+      // return to login
+    }
     return this.userDomains;
   }
 
