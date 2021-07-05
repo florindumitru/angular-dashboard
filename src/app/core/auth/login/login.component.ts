@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/auth';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -17,9 +19,12 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-  
+
   constructor(
-    public authService: AuthService
+    public authService: AuthService,
+    public router: Router,
+    private afAuth: AngularFireAuth,
+
   ) { }
 
   emailFormControl = new FormControl('', [
@@ -36,6 +41,9 @@ export class LoginComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.afAuth.onAuthStateChanged((u) => {
+      this.router.navigate(['main']);
+    });
   }
 
   login() {

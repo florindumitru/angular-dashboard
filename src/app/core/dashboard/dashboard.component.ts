@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -8,6 +8,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpFirestoreService } from '../services/http/http-firestore.service';
 import { ToastNotificationService, ToastServicePosition, ToastServiceType } from '../services/toast/toast-notification.service';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth/services/auth.service';
 
 
 @Component({
@@ -15,7 +17,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements AfterViewInit {
 
   subdomainFormControl = new FormControl('', [
     Validators.required,
@@ -48,13 +50,15 @@ export class DashboardComponent implements OnInit {
   constructor(
     private httpFirestoreSv: HttpFirestoreService,
     private toastNotificationSv: ToastNotificationService,
-    private afAuth: AngularFireAuth
+    private afAuth: AngularFireAuth,
+    private router: Router,
+    private authService: AuthService
   ) {
 
     // this.getUserDomains();
   }
 
-   ngOnInit() {
+  ngAfterViewInit() {
     console.log("init dashboards");
     this.getUserDomains();
     // this.getUserDomainsById();
@@ -63,6 +67,8 @@ export class DashboardComponent implements OnInit {
     // let uid = user?.uid;
     // console.log(user)
   }
+
+
 
   applyFilter(event: any) {
     let filterValue = event.target.value
@@ -116,45 +122,50 @@ export class DashboardComponent implements OnInit {
 
 
   getUserDomains() {
-    this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
-      this.ELEMENT_DATA = [];
-      res.forEach((element: any) => {
-        this.ELEMENT_DATA.push({
-          currentData: element,
-          originalData: element,
-          editable: false,
-          validator: this.editForm(element)
+    this.afAuth.onAuthStateChanged((u) => {
+      this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
+        this.ELEMENT_DATA = [];
+        res.forEach((element: any) => {
+          this.ELEMENT_DATA.push({
+            currentData: element,
+            originalData: element,
+            editable: false,
+            validator: this.editForm(element)
+          });
         });
-      });
 
-      this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }, error => {
-      console.error(error);
+        this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      }, error => {
+        console.error(error);
+        // this.authService.SignOut();
+        // this.router.navigate(['login']);
+
+      });
     });
   }
 
-  getUserDomainsById() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    this.httpFirestoreSv.getUserDomainsByUid(user.uid).subscribe((res: any) => {
-      this.ELEMENT_DATA = [];
-      res.forEach((element: any) => {
-        this.ELEMENT_DATA.push({
-          currentData: element,
-          originalData: element,
-          editable: false,
-          validator: this.editForm(element)
-        });
-      });
+  // getUserDomainsById() {
+  //   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  //   this.httpFirestoreSv.getUserDomainsByUid(user.uid).subscribe((res: any) => {
+  //     this.ELEMENT_DATA = [];
+  //     res.forEach((element: any) => {
+  //       this.ELEMENT_DATA.push({
+  //         currentData: element,
+  //         originalData: element,
+  //         editable: false,
+  //         validator: this.editForm(element)
+  //       });
+  //     });
 
-      this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }, error => {
-      console.error(error);
-    });
-  }
+  //     this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+  //     this.dataSource.paginator = this.paginator;
+  //     this.dataSource.sort = this.sort;
+  //   }, error => {
+  //     console.error(error);
+  //   });
+  // }
 
 
   ngOnDestroy(){
