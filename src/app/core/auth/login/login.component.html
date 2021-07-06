@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card  [style.width]="mobileQuery.matches ? '80%' : '50%'">
 <mat-card-header>
     <mat-card-title>
         Login
@@ -30,6 +30,7 @@
 
               <button mat-raised-button (click)="login()" [disabled] = "!emailFormControl.valid || !passwordFormControl.valid">Login</button>
 
+              <br>
               <span>Not having an account yet ? <span class="redirect" routerLink="/signup">Sign Up</span></span>
 
 

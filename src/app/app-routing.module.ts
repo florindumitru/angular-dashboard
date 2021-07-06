@@ -8,16 +8,8 @@ import { DashboardComponent } from './core/dashboard/dashboard.component';
 import { SidenavComponent } from './core/sidenav/sidenav.component';
 
 const routes: Routes = [
-  // {
-  //   path: '', redirectTo: 'login', pathMatch: 'full'
-  // },
   {
-    path: '', redirectTo: 'login', pathMatch: 'full'
-  },
-  { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
-  {
-    path: 'main', component: SidenavComponent,
+    path: '', component: SidenavComponent,
     children: [
       {
         path:'dashboard', component: DashboardComponent
@@ -27,9 +19,13 @@ const routes: Routes = [
       },
       {
         path:'change-password', component: ChangePasswordComponent
-      }
+      },
+      // { path: '**', redirectTo: '/dashboard', pathMatch: 'full' },
     ]
-  }
+  },
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: '**', redirectTo: '/login', pathMatch: 'full' },
 ];
 
 @NgModule({

@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { MediaMatcher } from '@angular/cdk/layout';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 import { Router } from '@angular/router';
@@ -20,12 +20,19 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class LoginComponent implements OnInit {
 
+  mobileQuery!: MediaQueryList;
+  private _mobileQueryListener: () => void;
+
   constructor(
     public authService: AuthService,
     public router: Router,
-    private afAuth: AngularFireAuth,
-
-  ) { }
+    public changeDetectorRef: ChangeDetectorRef,
+    public media: MediaMatcher,
+  ) {
+    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
+    this.mobileQuery.addListener(this._mobileQueryListener);
+  }
 
   emailFormControl = new FormControl('', [
     Validators.required,
@@ -41,9 +48,9 @@ export class LoginComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.afAuth.onAuthStateChanged((u) => {
-      this.router.navigate(['main']);
-    });
+    if(this.authService.userData) {
+      this.router.navigate(['dashboard']);
+    }
   }
 
   login() {

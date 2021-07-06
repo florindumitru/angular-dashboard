@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { MediaMatcher } from '@angular/cdk/layout';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { ToastNotificationService, ToastServicePosition } from '../../services/toast/toast-notification.service';
 import { AuthService } from '../services/auth.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -18,9 +20,19 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class SignupComponent implements OnInit {
 
+  mobileQuery!: MediaQueryList;
+  private _mobileQueryListener: () => void;
+
   constructor(
-    public authService: AuthService
-  ) { }
+    public authService: AuthService,
+    public changeDetectorRef: ChangeDetectorRef,
+    public media: MediaMatcher,
+    private toastNotificationSv: ToastNotificationService,
+  ) {
+    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
+    this.mobileQuery.addListener(this._mobileQueryListener);
+   }
 
 
   emailFormControl = new FormControl('', [
@@ -47,6 +59,10 @@ export class SignupComponent implements OnInit {
   signUp() {
     // this.emailFormControl.value;
     console.log(this.emailFormControl.value, this.passwordFormControl.value, this.rePasswordFormControl.value);
+    if (this.passwordFormControl.value !== this.rePasswordFormControl.value) {
+      this.toastNotificationSv.showErrorToast('Passwords differ', ToastServicePosition.topCenter);
+      return;
+    }
     this.authService.SignUp(this.emailFormControl.value, this.passwordFormControl.value);
   }
 

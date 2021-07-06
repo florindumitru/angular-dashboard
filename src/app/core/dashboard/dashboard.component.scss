@@ -4,31 +4,31 @@ mat-card {
     display: flex;
     flex-direction: column;
   }
-  
+
   mat-form-field {
-    width: 80%;
+    width: 100%;
     justify-content: center;
     align-self: center;
   }
-  
+
   .edit-users {
     overflow: auto;
-    width: 80%;
+    width: 100%;
     justify-content: center;
     align-self: center;
   }
-  
+
   .full-width-table {
     width: 100%;
   }
-  
+
   .reset {
     margin-top: 30px;
     width: 20%;
     justify-content: center;
     align-self: center;
   }
-  
+
   .submit {
     margin-top: 30px;
     width: 20%;
@@ -36,7 +36,7 @@ mat-card {
     align-self: center;
     margin-left: 60%;
   }
-  
+
 
 
   .example-form {
@@ -44,11 +44,11 @@ mat-card {
     max-width: 500px;
     width: 100%;
   }
-  
+
   .example-full-width {
     width: 100%;
   }
-  
+
   td {
     padding-right: 8px;
   }

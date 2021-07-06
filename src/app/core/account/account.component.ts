@@ -8,12 +8,26 @@ import { AuthService } from '../auth/services/auth.service';
 })
 export class AccountComponent implements OnInit {
 
+  public userEmail: string ='';
+  public localDateStr: string = '';
+  public localTimeStr: string = '';
+  public lastLogin: string = '';
   constructor(
     private authFb: AuthService
   ) { }
 
   ngOnInit(): void {
-    console.log(JSON.parse(localStorage.getItem('user') || '{}'));
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let datei = parseInt(user.lastLoginAt,10);
+    let date = new Date(datei);
+    this.userEmail = user.email;
+    this.localDateStr =  date.toLocaleDateString();
+    this.localTimeStr =  date.toLocaleTimeString();
+    this.lastLogin  = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    console.log(user);
+    console.log(user.email, date.toLocaleDateString(), date.toLocaleTimeString());
+
+
   }
 
 }
