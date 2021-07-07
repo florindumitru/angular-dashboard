@@ -14,7 +14,13 @@ export class MenuComponent implements OnInit {
     private authService: AuthService
   ) { }
 
+  public isLoggedIn:boolean = false;
+
   ngOnInit(): void {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user && user.uid) {
+      this.isLoggedIn = true;
+    }
   }
 
   routeToLogin() {

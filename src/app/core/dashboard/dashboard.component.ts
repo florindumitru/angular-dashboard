@@ -113,16 +113,24 @@ export class DashboardComponent implements AfterViewInit {
     let subdomain = this.subdomainFormControl.value;
     let ipfsLink = this.ipfsLinkFormControl.value;
     console.log(subdomain, ipfsLink);
-    let userDomain = new UserDomains('', user.uid ,subdomain, ipfsLink, Date.now().toString());
-    let pureDomainObj = Object.assign({}, userDomain);
-    this.httpFirestoreSv.addUserDomains(pureDomainObj);
+    if (user && user.uid) {
+      let userDomain = new UserDomains('', user.uid, subdomain, ipfsLink, Date.now().toString());
+      let pureDomainObj = Object.assign({}, userDomain);
+      this.httpFirestoreSv.addUserDomains(pureDomainObj);
+    } else {
+      this.toastNotificationSv.showToast('Not allowed to add domain', ToastServiceType.danger, ToastServicePosition.topCenter);
+    }
   }
 
 
 
 
   getUserDomains() {
-    this.afAuth.onAuthStateChanged((u) => {
+    // this.afAuth.onAuthStateChanged((user) => {
+    //   if (!user) {
+    //     console.log('not logged');
+    //     return;
+    //   }
       this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
         this.ELEMENT_DATA = [];
         res.forEach((element: any) => {
@@ -143,7 +151,7 @@ export class DashboardComponent implements AfterViewInit {
         // this.router.navigate(['login']);
 
       });
-    });
+    // });
   }
 
   // getUserDomainsById() {
@@ -168,7 +176,7 @@ export class DashboardComponent implements AfterViewInit {
   // }
 
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     console.log("destroy");
     this.dataSource.data = [];
     this.ELEMENT_DATA = [];
