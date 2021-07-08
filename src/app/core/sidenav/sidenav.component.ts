@@ -3,6 +3,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ToggleMenuService } from '../services/toggle-menu.service';
 import { MatSidenav } from '@angular/material/sidenav';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidenav',
@@ -29,7 +30,8 @@ export class SidenavComponent  implements AfterViewInit {
   constructor(
     public changeDetectorRef: ChangeDetectorRef,
     public media: MediaMatcher,
-    private toggleMenuService: ToggleMenuService
+    private toggleMenuService: ToggleMenuService,
+    private router: Router,
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -47,7 +49,10 @@ export class SidenavComponent  implements AfterViewInit {
         this.sidenav?.toggle();
       });
   }, 200);
-   
+  }
+
+  routeToDashboard(){
+    this.router.navigate(['dashboard']);
   }
 
   ngOnDestroy(): void {

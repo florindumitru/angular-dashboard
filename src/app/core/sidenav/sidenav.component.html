@@ -3,8 +3,9 @@
     <button mat-icon-button (click)="snav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
-    <img calss="imgLogo" src="../../../assets/img/logod.png" />
-    <h1 class="title">IPDS</h1>
+    <img calss="imgLogo" src="../../../assets/img/logod.png" 
+    (click)='routeToDashboard()'/>
+    <h1 class="title" (click)='routeToDashboard()' >IPDS</h1>
     <span class="example-spacer"></span>
     <app-menu></app-menu>
   </mat-toolbar>

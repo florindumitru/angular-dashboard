@@ -27,7 +27,6 @@ export class DashboardComponent implements AfterViewInit {
     Validators.required
   ]);
 
-
   ELEMENT_DATA_FROM_BACK: UserDomains[] = [];
 
   ELEMENT_DATA: EditUserDomains[] = [];
@@ -46,6 +45,9 @@ export class DashboardComponent implements AfterViewInit {
     ipfsLink: new FormControl(e.ipfsLink, Validators.required),
   });
 
+  public isLoadingDomains: boolean = false;
+  public isLoadingAddDomains: boolean = false;
+
 
   constructor(
     private httpFirestoreSv: HttpFirestoreService,
@@ -54,21 +56,12 @@ export class DashboardComponent implements AfterViewInit {
     private router: Router,
     private authService: AuthService
   ) {
-
-    // this.getUserDomains();
   }
 
   ngAfterViewInit() {
     console.log("init dashboards");
-    this.getUserDomains();
-    // this.getUserDomainsById();
-
-    // let user = await this.afAuth.currentUser;
-    // let uid = user?.uid;
-    // console.log(user)
+    this.getUserDomainsIfLoggedUser();
   }
-
-
 
   applyFilter(event: any) {
     let filterValue = event.target.value
@@ -107,8 +100,13 @@ export class DashboardComponent implements AfterViewInit {
   cancelOrDelete() {
   }
 
+  clearAddUserDomainInputs() {
+    this.subdomainFormControl.reset();
+    this.ipfsLinkFormControl.reset();
+  }
 
   addUserDomain() {
+    this.isLoadingAddDomains = true;
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     let subdomain = this.subdomainFormControl.value;
     let ipfsLink = this.ipfsLinkFormControl.value;
@@ -116,7 +114,16 @@ export class DashboardComponent implements AfterViewInit {
     if (user && user.uid) {
       let userDomain = new UserDomains('', user.uid, subdomain, ipfsLink, Date.now().toString());
       let pureDomainObj = Object.assign({}, userDomain);
-      this.httpFirestoreSv.addUserDomains(pureDomainObj);
+      this.httpFirestoreSv.addUserDomains(pureDomainObj)
+      .then((res) => {
+        this.clearAddUserDomainInputs();
+      })
+      .catch((err: any) => {
+        this.toastNotificationSv.showToast('Error adding domain', ToastServiceType.danger, ToastServicePosition.topCenter);
+      }).finally(()=>{
+        this.isLoadingAddDomains = false;
+      });
+      
     } else {
       this.toastNotificationSv.showToast('Not allowed to add domain', ToastServiceType.danger, ToastServicePosition.topCenter);
     }
@@ -124,13 +131,21 @@ export class DashboardComponent implements AfterViewInit {
 
 
 
+  getUserDomainsIfLoggedUser() {
+      this.afAuth.onAuthStateChanged((user) => {
+      if (!user) {
+        console.log('not logged');
+        // return;
+      }else {
+        console.log('user ', user);
+        this.getUserDomains();
+      }
+    });
+  }
+
 
   getUserDomains() {
-    // this.afAuth.onAuthStateChanged((user) => {
-    //   if (!user) {
-    //     console.log('not logged');
-    //     return;
-    //   }
+      this.isLoadingDomains = true;
       this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
         this.ELEMENT_DATA = [];
         res.forEach((element: any) => {
@@ -145,35 +160,13 @@ export class DashboardComponent implements AfterViewInit {
         this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.isLoadingDomains = false;
       }, error => {
         console.error(error);
-        // this.authService.SignOut();
-        // this.router.navigate(['login']);
-
+        this.toastNotificationSv.showToast(error.message? error.message : "Error getting data", ToastServiceType.danger, ToastServicePosition.topCenter);
+        this.isLoadingDomains = false;
       });
-    // });
   }
-
-  // getUserDomainsById() {
-  //   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  //   this.httpFirestoreSv.getUserDomainsByUid(user.uid).subscribe((res: any) => {
-  //     this.ELEMENT_DATA = [];
-  //     res.forEach((element: any) => {
-  //       this.ELEMENT_DATA.push({
-  //         currentData: element,
-  //         originalData: element,
-  //         editable: false,
-  //         validator: this.editForm(element)
-  //       });
-  //     });
-
-  //     this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-  //     this.dataSource.paginator = this.paginator;
-  //     this.dataSource.sort = this.sort;
-  //   }, error => {
-  //     console.error(error);
-  //   });
-  // }
 
 
   ngOnDestroy() {

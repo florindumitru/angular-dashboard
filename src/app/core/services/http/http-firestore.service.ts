@@ -52,10 +52,12 @@ export class HttpFirestoreService  implements OnInit {
     //     });
     //   }));
     // }
-    this.createUserDomainsCollection();
+    // this.createUserDomainsCollection();
   }
 
   ngOnInit() {
+    console.log('Init service');
+    this.createUserDomainsCollection();
   }
 
   createUserDomainsCollection () {
@@ -91,14 +93,16 @@ export class HttpFirestoreService  implements OnInit {
   }
 
   addUserDomains(userDomain: UserDomains) {
-    this.userDomainsCollection
-      .add(userDomain)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err: any) => {
-        console.log(err);
-      });
+    // this.userDomainsCollection
+    //   .add(userDomain)
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((err: any) => {
+    //     console.log(err);
+    //   });
+   return  this.userDomainsCollection
+    .add(userDomain);
   }
 
   deleteUserDomains(userDomain: UserDomains) {

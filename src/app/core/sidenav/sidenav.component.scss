@@ -34,8 +34,13 @@
     max-width: 30px;
     max-height: 30px;
     padding-right: 10px;
+    cursor: pointer;
 }
 
 .example-spacer {
   flex: 1 1 auto;
+}
+
+.title{
+  cursor: pointer;
 }

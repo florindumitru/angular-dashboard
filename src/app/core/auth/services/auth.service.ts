@@ -14,6 +14,7 @@ import { HttpFirestoreService } from '../../services/http/http-firestore.service
 export class AuthService {
   public userData: any; // Save logged in user data
 
+
   constructor(
     public afs: AngularFirestore,   // Inject Firestore service
     public afAuth: AngularFireAuth, // Inject Firebase auth service
@@ -40,7 +41,7 @@ export class AuthService {
     return this.afAuth.signInWithEmailAndPassword(email, password)
       .then((result: { user: any; }) => {
         this.ngZone.run(() => {
-          this.router.navigate(['dashboard']);
+          // this.router.navigate(['dashboard']);
           this.SetUserData(result.user)
           // .catch(error => {
           //   window.alert(error.message)
@@ -86,9 +87,11 @@ export class AuthService {
   }
 
   // Returns true when user is looged in and email is verified
+  // for now, not verifEmail... todo 
   get isLoggedIn(): boolean {
-    const user = JSON.parse(localStorage.getItem('user') || '');
-    return (user !== null && user.emailVerified !== false) ? true : false;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    // return (user !== null && user.emailVerified !== false) ? true : false;
+    return (user !== null && user.uid ) ? true : false;
   }
 
   // Sign in with Google
@@ -125,6 +128,7 @@ export class AuthService {
       merge: true
     })
     .then(res=> {
+      this.router.navigate(['dashboard']);
       console.log(res);
     })
     .catch((err: any) => {
