@@ -9,13 +9,13 @@
       <mat-icon>login</mat-icon>
       <span>Login</span>
     </button>
-    <button mat-menu-item 
+    <button mat-menu-item
     *ngIf="!isLoggedIn"
     (click)="routeToSignup()">
       <mat-icon>login</mat-icon>
       <span>Sign Up</span>
     </button>
-    <button mat-menu-item 
+    <button mat-menu-item
     *ngIf="isLoggedIn"
     (click)="logout()">
       <mat-icon>logout</mat-icon>

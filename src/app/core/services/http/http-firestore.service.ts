@@ -52,6 +52,13 @@ export class HttpFirestoreService  implements OnInit {
     //     });
     //   }));
     // }
+    this.createUserDomainsCollection();
+  }
+
+  ngOnInit() {
+  }
+
+  createUserDomainsCollection () {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.user = user;
     if (user && user.uid) {
@@ -65,11 +72,14 @@ export class HttpFirestoreService  implements OnInit {
     }
   }
 
-  ngOnInit() {
-  }
-
   getUserDomains() {
-    return this.userDomainsCollection.snapshotChanges().pipe(
+    console.log(this.userDomainsCollection);
+    if (!this.userDomainsCollection) {
+      this.createUserDomainsCollection();
+    }
+    return this.userDomainsCollection
+    .snapshotChanges()
+    .pipe(
       map((changes: any) => {
         return changes.map((a: any) => {
           const data = a.payload.doc.data() as UserDomains;
@@ -112,6 +122,7 @@ export class HttpFirestoreService  implements OnInit {
 
   clearData() {
     this.userDomains = new Observable<UserDomains>();
+    // this.userDomainsCollection = undefined;
     // this.userDomainsCollection = new  AngularFirestoreCollection();
   }
 

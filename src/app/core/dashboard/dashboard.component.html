@@ -27,7 +27,7 @@
       </ng-container> -->
 
       <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef>Action</th>
+        <th mat-header-cell *matHeaderCellDef>Update</th>
         <td mat-cell *matCellDef="let row; let i = index">
           <button *ngIf="row.editable" mat-icon-button color="primary" focusable="false" (click)="startEdit()">
             <mat-icon>edit</mat-icon>
