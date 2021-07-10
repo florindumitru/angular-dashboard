@@ -5,6 +5,7 @@ import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from "@angular/router";
 import { HttpFirestoreService } from '../../services/http/http-firestore.service';
+import { UserDomains } from 'src/app/shared/models/user-domains';
 
 
 @Injectable({
@@ -13,7 +14,7 @@ import { HttpFirestoreService } from '../../services/http/http-firestore.service
 
 export class AuthService {
   public userData: any; // Save logged in user data
-
+  public adminUid = "TFmyKHLmiMYOIEjPmbghgWmuEl13";
 
   constructor(
     public afs: AngularFirestore,   // Inject Firestore service
@@ -36,6 +37,13 @@ export class AuthService {
     })
   }
 
+  isAdmin() {
+    if (this.userData &&  this.userData.uid === this.adminUid){
+      return true;
+    }
+    return false;
+  }
+
   // Sign in with email/password
   SignIn(email: string, password: string) {
     return this.afAuth.signInWithEmailAndPassword(email, password)
@@ -47,7 +55,7 @@ export class AuthService {
           //   window.alert(error.message)
           // });
         });
-        console.log(result.user);
+        // console.log(result.user);
       }).catch((error: { message: any; }) => {
         window.alert(error.message)
       })
@@ -129,10 +137,10 @@ export class AuthService {
     })
     .then(res=> {
       this.router.navigate(['dashboard']);
-      console.log(res);
+      // console.log(res);
     })
     .catch((err: any) => {
-      console.log(err);
+      console.error(err);
     });
 
   }

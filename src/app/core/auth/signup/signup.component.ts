@@ -32,7 +32,7 @@ export class SignupComponent implements OnInit {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
-   }
+  }
 
 
   emailFormControl = new FormControl('', [
@@ -57,8 +57,6 @@ export class SignupComponent implements OnInit {
   }
 
   signUp() {
-    // this.emailFormControl.value;
-    console.log(this.emailFormControl.value, this.passwordFormControl.value, this.rePasswordFormControl.value);
     if (this.passwordFormControl.value !== this.rePasswordFormControl.value) {
       this.toastNotificationSv.showErrorToast('Passwords differ', ToastServicePosition.topCenter);
       return;

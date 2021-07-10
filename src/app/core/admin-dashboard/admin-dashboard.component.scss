@@ -1,0 +1,56 @@
+mat-card {
+    width: 80%;
+    margin: 2% auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  mat-form-field {
+    width: 100%;
+    justify-content: center;
+    align-self: center;
+  }
+
+  .edit-users {
+    overflow: auto;
+    width: 100%;
+    justify-content: center;
+    align-self: center;
+  }
+
+  .full-width-table {
+    width: 100%;
+  }
+
+  .reset {
+    margin-top: 30px;
+    width: 20%;
+    justify-content: center;
+    align-self: center;
+  }
+
+  .submit {
+    margin-top: 30px;
+    width: 20%;
+    justify-content: center;
+    align-self: center;
+    margin-left: 60%;
+  }
+
+
+
+  .example-form {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  .example-full-width {
+    width: 100%;
+  }
+
+  td {
+    padding-right: 8px;
+  }
+
+  form { margin: 0 auto; }

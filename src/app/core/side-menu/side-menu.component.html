@@ -6,6 +6,10 @@
     <a mat-list-item routerLink="./dashboard" >
         <mat-icon>dashboard</mat-icon>
         Dashboard</a>
+        <a mat-list-item routerLink="./admin-dashboard"
+        *ngIf="isAdmin()" >
+            <mat-icon>dashboard</mat-icon>
+           Admin Dashboard</a>
     <a mat-list-item routerLink="./change-password" >
         <mat-icon>password</mat-icon>
         Change Password</a>

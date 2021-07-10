@@ -49,13 +49,14 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if(this.authService.userData) {
+      console.log(this.authService.userData);
       this.router.navigate(['dashboard']);
     }
   }
 
   login() {
     // this.emailFormControl.value;
-    console.log(this.emailFormControl.value, this.passwordFormControl.value);
+    // console.log(this.emailFormControl.value, this.passwordFormControl.value);
     this.authService.SignIn(this.emailFormControl.value,  this.passwordFormControl.value);
   }
 

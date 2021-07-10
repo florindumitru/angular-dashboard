@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth/services/auth.service';
 
 @Component({
   selector: 'app-side-menu',
@@ -9,12 +10,16 @@ import { Router } from '@angular/router';
 export class SideMenuComponent implements OnInit {
 
   constructor(
-    private router: Router
+    private router: Router,
+    private auth: AuthService
   ) { }
 
   ngOnInit(): void {
   }
 
+  isAdmin() {
+    return this.auth.isAdmin();
+  }
   
   routeToDashboard() {
     this.router.navigate(['main','dashboard']);

@@ -11,13 +11,12 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth/services/auth.service';
 
-
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  selector: 'app-admin-dashboard',
+  templateUrl: './admin-dashboard.component.html',
+  styleUrls: ['./admin-dashboard.component.scss']
 })
-export class DashboardComponent implements AfterViewInit {
+export class AdminDashboardComponent implements AfterViewInit {
 
   subdomainFormControl = new FormControl('', [
     Validators.required,
@@ -136,6 +135,7 @@ export class DashboardComponent implements AfterViewInit {
         // return;
       }else {
         this.getUserDomains();
+        this.getAllUsersWithDomains();
       }
     });
   }
@@ -166,9 +166,26 @@ export class DashboardComponent implements AfterViewInit {
   }
 
 
+  getAllUsersWithDomains(){
+    this.httpFirestoreSv.getAllUsersAndDomains().subscribe(res=>{
+      // console.log(res);
+      res.forEach((elem:any) => {
+        elem.subscribe((domains: any)=> {
+          console.log(domains);
+        }, (error:any)=> {
+          console.error(error);
+        })
+      });
+     
+    }, error=>{
+      console.error(error);
+    });
+  }
+
   ngOnDestroy() {
     this.dataSource.data = [];
     this.ELEMENT_DATA = [];
     this.ELEMENT_DATA_FROM_BACK = [];
   }
+
 }

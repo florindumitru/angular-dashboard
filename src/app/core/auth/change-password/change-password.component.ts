@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpFirestoreService } from '../../services/http/http-firestore.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-change-password',
@@ -7,7 +9,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChangePasswordComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private httpFirestoreSv: HttpFirestoreService
+  ) { }
 
   ngOnInit(): void {
   }

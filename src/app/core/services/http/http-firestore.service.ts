@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
-export class HttpFirestoreService  implements OnInit {
+export class HttpFirestoreService implements OnInit {
   private userDomainsCollection!: AngularFirestoreCollection<UserDomains>;
 
   private userDomains!: Observable<UserDomains>;
@@ -30,39 +30,16 @@ export class HttpFirestoreService  implements OnInit {
     private afAuth: AngularFireAuth,
     private router: Router
   ) {
-    // await afAuth.signInWithCredential(afAuth.currentUser);
-    // this.userDomains = this.afs.collection('userDomains').valueChanges();
-    // (this.afAuth.authState.subscribe(res => {
-    //   // console.log(res);
-    // }));
-    // const user = JSON.parse(localStorage.getItem('user') || '{}');
-    // let user = authService.userData;
-    // console.log(user);
-    // this.userDomainsCollection = this.getUserDomainsByUid('19yluNizPyZQPybxnIBSGGWN6jH3');
-    // this.userDomainsCollection = this.afs.doc(`${user.uid}`).collection(`userDomains`, x => x.where("uid", "==", user.uid));
-    // let user = await this.afAuth.currentUser;
-    // if (this.user && this.user.uid) {
-    //   this.userDomainsCollection = this.afs.collection(`userDomains`, x => x.where("uid", "==", this.user.uid));
-    //   // this.userDomainsCollection =  this.afs.collection(`userDomains`, ref => ref.orderBy('datetime','asc'));
-    //   this.userDomains = this.userDomainsCollection.snapshotChanges().pipe(map((changes: any) => {
-    //     return changes.map((a: any) => {
-    //       const data = a.payload.doc.data() as UserDomains;
-    //       data.id = a.payload.doc.id;
-    //       return data;
-    //     });
-    //   }));
-    // }
-    // this.createUserDomainsCollection();
   }
 
   ngOnInit() {
-    console.log('Init service');
     this.createUserDomainsCollection();
   }
 
-  createUserDomainsCollection () {
+  createUserDomainsCollection() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.user = user;
+    console.log(user);
     if (user && user.uid) {
       this.userDomainsCollection = this.afs.collection(
         `users/${user.uid}/userDomains`,
@@ -75,34 +52,25 @@ export class HttpFirestoreService  implements OnInit {
   }
 
   getUserDomains() {
-    console.log(this.userDomainsCollection);
     if (!this.userDomainsCollection) {
       this.createUserDomainsCollection();
     }
     return this.userDomainsCollection
-    .snapshotChanges()
-    .pipe(
-      map((changes: any) => {
-        return changes.map((a: any) => {
-          const data = a.payload.doc.data() as UserDomains;
-          data.id = a.payload.doc.id;
-          return data;
-        });
-      })
-    );
+      .snapshotChanges()
+      .pipe(
+        map((changes: any) => {
+          return changes.map((a: any) => {
+            const data = a.payload.doc.data() as UserDomains;
+            data.id = a.payload.doc.id;
+            return data;
+          });
+        })
+      );
   }
 
   addUserDomains(userDomain: UserDomains) {
-    // this.userDomainsCollection
-    //   .add(userDomain)
-    //   .then((res) => {
-    //     console.log(res);
-    //   })
-    //   .catch((err: any) => {
-    //     console.log(err);
-    //   });
-   return  this.userDomainsCollection
-    .add(userDomain);
+    return this.userDomainsCollection
+      .add(userDomain);
   }
 
   deleteUserDomains(userDomain: UserDomains) {
@@ -119,9 +87,31 @@ export class HttpFirestoreService  implements OnInit {
     this.userDomainsDoc.update(userDomain);
   }
 
-  getUserDomainsByUid(uid: string) {
-    // this.userDomainsDoc = this.afs.doc(`${uid}`);
-    // return this.userDomainsDoc.get();
+  getAllUsersAndDomains() {
+    this.userDomainsCollection = this.afs.collection(`users`);
+    return this.userDomainsCollection
+    .snapshotChanges()
+    .pipe(
+      map((changes: any) => {
+        return changes.map((a: any) => {
+          const data = a.payload.doc.data() as User;
+          data.id = a.payload.doc.id;
+          this.userDomainsCollection = this.afs.collection(
+            `users/${data.id}/userDomains`);
+            return this.userDomainsCollection
+            .snapshotChanges()
+            .pipe(
+              map((changes: any) => {
+                return changes.map((a: any) => {
+                  const data = a.payload.doc.data() as UserDomains;
+                  data.id = a.payload.doc.id;
+                  return data;
+                });
+              })
+            );
+        });
+      })
+    );
   }
 
   clearData() {

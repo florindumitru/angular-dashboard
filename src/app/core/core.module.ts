@@ -95,6 +95,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     // MatFormFieldModule
   ],
   declarations: [
+
   ]
 })
 export class CoreMaterialModule {}

@@ -1,0 +1,86 @@
+<mat-card>
+    <mat-form-field>
+      <input matInput type="text" placeholder="Filter" (keyup)="applyFilter($event)">
+    </mat-form-field>
+    <mat-progress-bar mode="indeterminate" *ngIf="isLoadingDomains"></mat-progress-bar>
+    <div class="edit-users mat-elevation-z8">
+      <table mat-table class="full-width-table" matSort aria-label="Elements" [dataSource]="dataSource">
+  
+        <ng-container matColumnDef="subdomain">
+          <th mat-header-cell *matHeaderCellDef>Subdomain Name</th>
+          <td mat-cell *matCellDef="let row;">
+              <!-- <p>{{row.currentData.subdomainName}}</p> -->
+            <input [formControl]="row.validator.get('subdomainName')" type="text" matInput>
+          </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="ipfsLink">
+          <th mat-header-cell *matHeaderCellDef >IPFS link</th>
+          <td mat-cell *matCellDef="let row;">
+            <input [formControl]="row.validator.get('ipfsLink')" type="text" matInput>
+          </td>
+        </ng-container>
+  
+        <!-- <ng-container matColumnDef="datetime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Datetime</th>
+          <td mat-cell *matCellDef="let row;">
+            {{row.currentData.datetime}}
+          </td>
+        </ng-container> -->
+  
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Update</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <button *ngIf="row.editable" mat-icon-button color="primary" focusable="false" (click)="startEdit()">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button *ngIf="!row.editable" mat-icon-button color="primary" focusable="false" (click)="confirmEditCreate(row)">
+              <mat-icon>check</mat-icon>
+            </button>
+            <!-- <button mat-icon-button color="warn" focusable="false" (click)="cancelOrDelete()">
+              <mat-icon>close</mat-icon>
+            </button> -->
+          </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      <mat-paginator #paginator [length]="dataSource.data.length" [pageIndex]="0" [pageSize]="5"
+        [pageSizeOptions]="[5, 10, 20]">
+      </mat-paginator>
+    </div>
+  
+  </mat-card>
+  
+  <mat-card>
+    <mat-form-field class="example-full-width" appearance="outline">
+      <mat-label>Subdomain Name</mat-label>
+      <input matInput [formControl]="subdomainFormControl">
+      <mat-error *ngIf="subdomainFormControl.hasError('required')">
+        Please enter a valid subdomain name
+    </mat-error>
+    </mat-form-field>
+  
+    <mat-form-field class="example-full-width" appearance="outline">
+      <mat-label> IPFS link </mat-label>
+      <input matInput  [formControl]="ipfsLinkFormControl">
+      <mat-error *ngIf="ipfsLinkFormControl.hasError('required')">
+        Please enter a valid ipfs link
+    </mat-error>
+    </mat-form-field>
+  
+    <mat-progress-bar mode="indeterminate" *ngIf="isLoadingAddDomains"></mat-progress-bar>
+    <button mat-raised-button type="submit" [disabled]="!subdomainFormControl.valid || !ipfsLinkFormControl.valid"
+    (click)="addUserDomain()"
+    > Add </button>
+  
+  
+  
+  
+  </mat-card>
+  
+  <!-- Copyright 2019 Google Inc. All Rights Reserved.
+        Use of this source code is governed by an MIT-style license that
+        can be found in the LICENSE file at http://angular.io/license -->
+  

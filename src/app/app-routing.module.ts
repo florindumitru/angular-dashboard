@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AccountComponent } from './core/account/account.component';
+import { AdminDashboardComponent } from './core/admin-dashboard/admin-dashboard.component';
 import { ChangePasswordComponent } from './core/auth/change-password/change-password.component';
+import { FirebaseAdminAuthGuard } from './core/auth/guard/firebase-admin-auth.guard';
 import { FirebaseAuthGuard } from './core/auth/guard/firebase-auth.guard';
 import { LoginComponent } from './core/auth/login/login.component';
 import { SignupComponent } from './core/auth/signup/signup.component';
@@ -14,6 +16,9 @@ const routes: Routes = [
     children: [
       {
         path:'dashboard', component: DashboardComponent,canActivate: [FirebaseAuthGuard]
+      },
+      {
+        path:'admin-dashboard', component: AdminDashboardComponent,canActivate: [FirebaseAdminAuthGuard]
       },
       {
         path:'account', component: AccountComponent, canActivate: [FirebaseAuthGuard]

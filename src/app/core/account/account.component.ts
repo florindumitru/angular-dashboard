@@ -24,8 +24,8 @@ export class AccountComponent implements OnInit {
     this.localDateStr =  date.toLocaleDateString();
     this.localTimeStr =  date.toLocaleTimeString();
     this.lastLogin  = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-    console.log(user);
-    console.log(user.email, date.toLocaleDateString(), date.toLocaleTimeString());
+    // console.log(user);
+    // console.log(user.email, date.toLocaleDateString(), date.toLocaleTimeString());
 
 
   }
