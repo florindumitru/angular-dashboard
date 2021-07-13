@@ -12,6 +12,7 @@ export class AccountComponent implements OnInit {
   public localDateStr: string = '';
   public localTimeStr: string = '';
   public lastLogin: string = '';
+  public isAdmin: boolean = false;
   constructor(
     private authFb: AuthService
   ) { }
@@ -24,6 +25,7 @@ export class AccountComponent implements OnInit {
     this.localDateStr =  date.toLocaleDateString();
     this.localTimeStr =  date.toLocaleTimeString();
     this.lastLogin  = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    this.isAdmin = this.authFb.isAdmin();
     // console.log(user);
     // console.log(user.email, date.toLocaleDateString(), date.toLocaleTimeString());
 

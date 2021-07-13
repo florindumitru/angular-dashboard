@@ -10,6 +10,8 @@ import { ToastNotificationService, ToastServicePosition, ToastServiceType } from
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth/services/auth.service';
+import { combineLatest } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -31,7 +33,7 @@ export class AdminDashboardComponent implements AfterViewInit {
   ELEMENT_DATA: EditUserDomains[] = [];
 
   // displayedColumns: string[] = ['subdomain', 'ipfsLink', 'datetime', 'action'];
-  displayedColumns: string[] = ['subdomain', 'ipfsLink', 'action'];
+  displayedColumns: string[] = ['userUid','userEmail', 'subdomain', 'ipfsLink', 'action'];
 
   dataSource: MatTableDataSource<EditUserDomains> = new MatTableDataSource<EditUserDomains>();
   selected = 'option1';
@@ -81,13 +83,19 @@ export class AdminDashboardComponent implements AfterViewInit {
       editUserRow.currentData.subdomainName = editUserRow.validator.value.subdomainName;
       editUserRow.currentData.ipfsLink = editUserRow.validator.value.ipfsLink;
       this.updateUserDomain(editUserRow.currentData);
-      this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
+      // this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
     }
   }
 
   updateUserDomain(userDomain: UserDomains) {
     let pureDomainObj = Object.assign({}, userDomain);
-    this.httpFirestoreSv.updateUserDomains(pureDomainObj);
+    this.httpFirestoreSv.updateUserDomainsByAdmin(pureDomainObj)
+    .then(result => {
+      this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
+    })
+    .catch(error => {
+      console.log(error);
+    });
   }
 
 
@@ -95,7 +103,15 @@ export class AdminDashboardComponent implements AfterViewInit {
 
   }
 
-  cancelOrDelete() {
+  deleteUserDomain(userDomain: EditUserDomains) {
+    let pureDomainObj = Object.assign({}, userDomain.originalData);
+    this.httpFirestoreSv.deleteUserDomainByAdmin(pureDomainObj)
+    .then(result => {
+      this.toastNotificationSv.showToast('Deleted with success', ToastServiceType.success, ToastServicePosition.topCenter);
+    })
+    .catch(error => {
+      console.log(error);
+    });
   }
 
   clearAddUserDomainInputs() {
@@ -112,15 +128,16 @@ export class AdminDashboardComponent implements AfterViewInit {
       let userDomain = new UserDomains('', user.uid, subdomain, ipfsLink, Date.now().toString());
       let pureDomainObj = Object.assign({}, userDomain);
       this.httpFirestoreSv.addUserDomains(pureDomainObj)
-      .then((res) => {
-        this.clearAddUserDomainInputs();
-      })
-      .catch((err: any) => {
-        this.toastNotificationSv.showToast('Error adding domain', ToastServiceType.danger, ToastServicePosition.topCenter);
-      }).finally(()=>{
-        this.isLoadingAddDomains = false;
-      });
-      
+        .then((res) => {
+          this.clearAddUserDomainInputs();
+          this.toastNotificationSv.showToast('Domain added with success', ToastServiceType.success, ToastServicePosition.topCenter);
+        })
+        .catch((err: any) => {
+          this.toastNotificationSv.showToast('Error adding domain', ToastServiceType.danger, ToastServicePosition.topCenter);
+        }).finally(() => {
+          this.isLoadingAddDomains = false;
+        });
+
     } else {
       this.toastNotificationSv.showToast('Not allowed to add domain', ToastServiceType.danger, ToastServicePosition.topCenter);
     }
@@ -129,56 +146,75 @@ export class AdminDashboardComponent implements AfterViewInit {
 
 
   getUserDomainsIfLoggedUser() {
-      this.afAuth.onAuthStateChanged((user) => {
+    this.afAuth.onAuthStateChanged((user) => {
       if (!user) {
-        console.error('not logged');
+        // console.error('not logged');
+        this.toastNotificationSv.showToast('Not logged in!', ToastServiceType.danger, ToastServicePosition.topCenter);
         // return;
-      }else {
-        this.getUserDomains();
+      } else {
+        // this.getUserDomains();
         this.getAllUsersWithDomains();
       }
     });
   }
 
 
-  getUserDomains() {
-      this.isLoadingDomains = true;
-      this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
-        this.ELEMENT_DATA = [];
-        res.forEach((element: any) => {
-          this.ELEMENT_DATA.push({
-            currentData: element,
-            originalData: element,
-            editable: false,
-            validator: this.editForm(element)
+  // getUserDomains() {
+  //   this.isLoadingDomains = true;
+  //   this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
+  //     this.ELEMENT_DATA = [];
+  //     res.forEach((element: any) => {
+  //       this.ELEMENT_DATA.push({
+  //         currentData: element,
+  //         originalData: element,
+  //         editable: false,
+  //         validator: this.editForm(element)
+  //       });
+  //     });
+
+  //     this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+  //     this.dataSource.paginator = this.paginator;
+  //     this.dataSource.sort = this.sort;
+  //     this.isLoadingDomains = false;
+  //   }, error => {
+  //     console.error(error);
+  //     // this.toastNotificationSv.showToast(error.message? error.message : "Error getting data", ToastServiceType.danger, ToastServicePosition.topCenter);
+  //     this.isLoadingDomains = false;
+  //   });
+  // }
+
+
+  getAllUsersWithDomains() {
+    this.httpFirestoreSv.getAllUsersAndDomains().subscribe(usersDomainsObservables => {
+      this.ELEMENT_DATA = [];
+
+      combineLatest(usersDomainsObservables as [])
+        .pipe(
+          take(1))
+        .subscribe(allUsersDomains => {
+
+          allUsersDomains.forEach((userDomains: any) => {
+            userDomains.forEach((userDomain: UserDomains) => {
+              this.ELEMENT_DATA.push({
+                currentData: userDomain,
+                originalData: userDomain,
+                editable: false,
+                validator: this.editForm(userDomain)
+              });
+            });
           });
-        });
 
-        this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.isLoadingDomains = false;
-      }, error => {
-        console.error(error);
-        // this.toastNotificationSv.showToast(error.message? error.message : "Error getting data", ToastServiceType.danger, ToastServicePosition.topCenter);
-        this.isLoadingDomains = false;
-      });
-  }
+          this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+          this.isLoadingDomains = false;
 
-
-  getAllUsersWithDomains(){
-    this.httpFirestoreSv.getAllUsersAndDomains().subscribe(res=>{
-      // console.log(res);
-      res.forEach((elem:any) => {
-        elem.subscribe((domains: any)=> {
-          console.log(domains);
-        }, (error:any)=> {
-          console.error(error);
+        }, error => {
+          console.log('CombineLatest error ', error);
         })
-      });
-     
-    }, error=>{
-      console.error(error);
+
+    }, error => {
+      console.error("Get users domains Observables error: ", error);
     });
   }
 

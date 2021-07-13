@@ -48,8 +48,11 @@ export class LoginComponent implements OnInit {
 
 
   ngOnInit(): void {
-    if(this.authService.userData) {
-      console.log(this.authService.userData);
+    let user = JSON.parse(localStorage.getItem('user') || '{}');
+    // if(this.authService.userData) {
+      if(user && user.uid) {
+      // console.log(this.authService.userData);
+      console.log(user);
       this.router.navigate(['dashboard']);
     }
   }

@@ -14,9 +14,10 @@ import { User } from 'src/app/shared/models/user';
 import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class HttpFirestoreService implements OnInit {
+export class HttpAdminFirestoreService {
+
   private userDomainsCollection!: AngularFirestoreCollection<UserDomains>;
 
   private userDomains!: Observable<UserDomains>;
@@ -41,43 +42,19 @@ export class HttpFirestoreService implements OnInit {
     this.user = user;
     console.log(user);
     if (user && user.uid) {
-      this.userDomainsCollection = this.afs.collection(
-        `users/${user.uid}/userDomains`,
-        (x) => x.where('uid', '==', user.uid)
-      );
+      this.userDomainsCollection = this.afs.collection(`users`);
     } else {
       // return to login
       this.router.navigate(['login']);
     }
   }
 
-  getUserDomains() {
-    if (!this.userDomainsCollection) {
-      this.createUserDomainsCollection();
-    }
-    return this.userDomainsCollection
-      .snapshotChanges()
-      .pipe(
-        map((changes: any) => {
-          return changes.map((a: any) => {
-            const data = a.payload.doc.data() as UserDomains;
-            data.id = a.payload.doc.id;
-            return data;
-          });
-        })
-      );
-  }
 
   addUserDomains(userDomain: UserDomains) {
     return this.userDomainsCollection
       .add(userDomain);
   }
 
-  deleteUserDomains(userDomain: UserDomains) {
-    return this.afs.doc(
-      `users/${this.user.uid}/userDomains/${userDomain.id}`
-    ).delete();
-  }
 
   deleteUserDomainByAdmin(userDomain: UserDomains) {
     return this.afs.doc(
@@ -85,12 +62,6 @@ export class HttpFirestoreService implements OnInit {
     ).delete();
   }
 
-  updateUserDomains(userDomain: UserDomains) {
-    this.userDomainsDoc = this.afs.doc(
-      `users/${this.user.uid}/userDomains/${userDomain.id}`
-    );
-    return this.userDomainsDoc.update(userDomain);
-  }
 
   updateUserDomainsByAdmin(userDomain: UserDomains) {
     return this.afs.doc(
@@ -99,7 +70,10 @@ export class HttpFirestoreService implements OnInit {
   }
 
   getAllUsersAndDomains() {
-    return this.afs.collection(`users`)
+    if (!this.userDomainsCollection) {
+      this.createUserDomainsCollection();
+    }
+    this.userDomainsCollection
       .snapshotChanges()
       .pipe(
         map((changes: any) => {
@@ -131,13 +105,4 @@ export class HttpFirestoreService implements OnInit {
     // this.userDomainsCollection = undefined;
     // this.userDomainsCollection = new  AngularFirestoreCollection();
   }
-
-  //// sec poli
-  // service cloud.firestore {
-  //   match /databases/{database}/documents {
-  //     match /Notebooks/{notebook_id} {
-  //       allow read, write: if request.auth != null && request.auth.uid == resource.data.owner;
-  //     }
-  //   }
-  // }
 }

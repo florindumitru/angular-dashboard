@@ -82,13 +82,19 @@ export class DashboardComponent implements AfterViewInit {
       editUserRow.currentData.subdomainName = editUserRow.validator.value.subdomainName;
       editUserRow.currentData.ipfsLink = editUserRow.validator.value.ipfsLink;
       this.updateUserDomain(editUserRow.currentData);
-      this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
     }
   }
 
   updateUserDomain(userDomain: UserDomains) {
     let pureDomainObj = Object.assign({}, userDomain);
-    this.httpFirestoreSv.updateUserDomains(pureDomainObj);
+    this.httpFirestoreSv.updateUserDomains(pureDomainObj)
+    .then(()=>{
+      this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
+    })
+    .catch(error => {
+      this.toastNotificationSv.showToast(error, ToastServiceType.danger, ToastServicePosition.topCenter);
+      console.error(error);
+    });
   }
 
 
@@ -115,6 +121,7 @@ export class DashboardComponent implements AfterViewInit {
       this.httpFirestoreSv.addUserDomains(pureDomainObj)
       .then((res) => {
         this.clearAddUserDomainInputs();
+        this.toastNotificationSv.showToast('Domain added with success', ToastServiceType.success, ToastServicePosition.topCenter);
       })
       .catch((err: any) => {
         this.toastNotificationSv.showToast('Error adding domain', ToastServiceType.danger, ToastServicePosition.topCenter);
