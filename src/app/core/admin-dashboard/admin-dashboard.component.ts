@@ -1,3 +1,4 @@
+import { HttpAdminFirestoreService } from './../services/http/http-admin-firestore.service';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,8 +9,6 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpFirestoreService } from '../services/http/http-firestore.service';
 import { ToastNotificationService, ToastServicePosition, ToastServiceType } from '../services/toast/toast-notification.service';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
-import { AuthService } from '../auth/services/auth.service';
 import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -51,11 +50,11 @@ export class AdminDashboardComponent implements AfterViewInit {
 
 
   constructor(
-    private httpFirestoreSv: HttpFirestoreService,
+    private httpAdminFirestoreSv: HttpAdminFirestoreService,
     private toastNotificationSv: ToastNotificationService,
     private afAuth: AngularFireAuth,
-    private router: Router,
-    private authService: AuthService
+    // private router: Router,
+    // private authService: AuthService
   ) {
   }
 
@@ -89,7 +88,7 @@ export class AdminDashboardComponent implements AfterViewInit {
 
   updateUserDomain(userDomain: UserDomains) {
     let pureDomainObj = Object.assign({}, userDomain);
-    this.httpFirestoreSv.updateUserDomainsByAdmin(pureDomainObj)
+    this.httpAdminFirestoreSv.updateUserDomainsByAdmin(pureDomainObj)
     .then(result => {
       this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
     })
@@ -105,9 +104,10 @@ export class AdminDashboardComponent implements AfterViewInit {
 
   deleteUserDomain(userDomain: EditUserDomains) {
     let pureDomainObj = Object.assign({}, userDomain.originalData);
-    this.httpFirestoreSv.deleteUserDomainByAdmin(pureDomainObj)
+    this.httpAdminFirestoreSv.deleteUserDomainByAdmin(pureDomainObj)
     .then(result => {
       this.toastNotificationSv.showToast('Deleted with success', ToastServiceType.success, ToastServicePosition.topCenter);
+      // this.getAllUsersWithDomains();
     })
     .catch(error => {
       console.log(error);
@@ -127,7 +127,7 @@ export class AdminDashboardComponent implements AfterViewInit {
     if (user && user.uid) {
       let userDomain = new UserDomains('', user.uid, subdomain, ipfsLink, Date.now().toString());
       let pureDomainObj = Object.assign({}, userDomain);
-      this.httpFirestoreSv.addUserDomains(pureDomainObj)
+      this.httpAdminFirestoreSv.addUserDomains(pureDomainObj)
         .then((res) => {
           this.clearAddUserDomainInputs();
           this.toastNotificationSv.showToast('Domain added with success', ToastServiceType.success, ToastServicePosition.topCenter);
@@ -185,7 +185,7 @@ export class AdminDashboardComponent implements AfterViewInit {
 
 
   getAllUsersWithDomains() {
-    this.httpFirestoreSv.getAllUsersAndDomains().subscribe(usersDomainsObservables => {
+    this.httpAdminFirestoreSv.getAllUsersAndDomains().subscribe(usersDomainsObservables => {
       this.ELEMENT_DATA = [];
 
       combineLatest(usersDomainsObservables as [])
@@ -208,6 +208,8 @@ export class AdminDashboardComponent implements AfterViewInit {
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
           this.isLoadingDomains = false;
+
+          console.log(this.ELEMENT_DATA);
 
         }, error => {
           console.log('CombineLatest error ', error);

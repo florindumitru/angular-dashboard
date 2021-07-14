@@ -73,7 +73,7 @@ export class HttpAdminFirestoreService {
     if (!this.userDomainsCollection) {
       this.createUserDomainsCollection();
     }
-    this.userDomainsCollection
+   return this.userDomainsCollection
       .snapshotChanges()
       .pipe(
         map((changes: any) => {
