@@ -30,17 +30,15 @@ export class HttpAdminFirestoreService {
     private afs: AngularFirestore,
     private afAuth: AngularFireAuth,
     private router: Router
-  ) {
-  }
+  ) { this.createUserDomainsCollection();  }
 
   ngOnInit() {
-    this.createUserDomainsCollection();
+   
   }
 
   createUserDomainsCollection() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.user = user;
-    console.log(user);
     if (user && user.uid) {
       this.userDomainsCollection = this.afs.collection(`users`);
     } else {

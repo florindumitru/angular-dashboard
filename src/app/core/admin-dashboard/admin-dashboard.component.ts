@@ -212,8 +212,6 @@ export class AdminDashboardComponent implements AfterViewInit {
           this.dataSource.sort = this.sort;
           this.isLoadingDomains = false;
 
-          console.log(this.ELEMENT_DATA);
-
         }, error => {
           console.log('CombineLatest error ', error);
         })

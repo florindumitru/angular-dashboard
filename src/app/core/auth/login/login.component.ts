@@ -51,7 +51,6 @@ export class LoginComponent implements OnInit {
     let user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (user && user.uid) {
-      console.log(user);
       this.router.navigate(['dashboard']);
     }
   }
