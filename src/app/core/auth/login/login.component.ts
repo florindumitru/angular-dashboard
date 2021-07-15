@@ -1,7 +1,7 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
-import {ErrorStateMatcher} from '@angular/material/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
@@ -49,9 +49,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     let user = JSON.parse(localStorage.getItem('user') || '{}');
-    // if(this.authService.userData) {
-      if(user && user.uid) {
-      // console.log(this.authService.userData);
+
+    if (user && user.uid) {
       console.log(user);
       this.router.navigate(['dashboard']);
     }
@@ -60,7 +59,7 @@ export class LoginComponent implements OnInit {
   login() {
     // this.emailFormControl.value;
     // console.log(this.emailFormControl.value, this.passwordFormControl.value);
-    this.authService.SignIn(this.emailFormControl.value,  this.passwordFormControl.value);
+    this.authService.SignIn(this.emailFormControl.value, this.passwordFormControl.value);
   }
 
 }

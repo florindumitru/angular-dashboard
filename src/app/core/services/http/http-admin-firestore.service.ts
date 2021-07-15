@@ -51,8 +51,10 @@ export class HttpAdminFirestoreService {
 
 
   addUserDomains(userDomain: UserDomains) {
-    return this.userDomainsCollection
-      .add(userDomain);
+  return  this.afs.collection(
+      `users/${this.user.uid}/userDomains`).add(userDomain);
+    // return this.userDomainsCollection
+    //   .add(userDomain);
   }
 
 
@@ -60,6 +62,19 @@ export class HttpAdminFirestoreService {
     return this.afs.doc(
       `users/${userDomain.uid}/userDomains/${userDomain.id}`
     ).delete();
+
+      // this.afs.collection(`users/${userDomain.uid}/userDomains`,
+      //     ref => ref.orderBy('id')).valueChanges().subscribe(userDomains => {
+      //     userDomains.map((userDomain: any) => {
+      //         this.afs.doc(`users/${userDomain.uid}/userDomains/${userDomain.id}`).delete()
+      //             .catch(error => {console.log(error); })
+      //             .then(() => console.log(`Deleting user domain (${userDomain.id}) in (${userDomain.uid})`));
+      //     });
+      // });
+      // this.testDoc.delete().catch(error => console.log(error)).then(() => console.log(`${this.testID} has been deleted.`));
+ 
+
+
   }
 
 

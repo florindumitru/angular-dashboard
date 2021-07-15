@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class HttpFirestoreService implements OnInit {
-  private userDomainsCollection!: AngularFirestoreCollection<UserDomains>;
+  private userDomainsCollection: AngularFirestoreCollection<UserDomains> | undefined;
 
   private userDomains!: Observable<UserDomains>;
 
@@ -30,16 +30,16 @@ export class HttpFirestoreService implements OnInit {
     private afAuth: AngularFireAuth,
     private router: Router
   ) {
+    this.createUserDomainsCollection();
   }
 
   ngOnInit() {
-    this.createUserDomainsCollection();
+    // this.createUserDomainsCollection();
   }
 
   createUserDomainsCollection() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.user = user;
-    console.log(user);
     if (user && user.uid) {
       this.userDomainsCollection = this.afs.collection(
         `users/${user.uid}/userDomains`,
@@ -55,7 +55,8 @@ export class HttpFirestoreService implements OnInit {
     if (!this.userDomainsCollection) {
       this.createUserDomainsCollection();
     }
-    return this.userDomainsCollection
+    
+    return this.userDomainsCollection!
       .snapshotChanges()
       .pipe(
         map((changes: any) => {
@@ -69,7 +70,7 @@ export class HttpFirestoreService implements OnInit {
   }
 
   addUserDomains(userDomain: UserDomains) {
-    return this.userDomainsCollection
+    return this.userDomainsCollection!
       .add(userDomain);
   }
 
@@ -128,7 +129,7 @@ export class HttpFirestoreService implements OnInit {
 
   clearData() {
     this.userDomains = new Observable<UserDomains>();
-    // this.userDomainsCollection = undefined;
+    this.userDomainsCollection = undefined;
     // this.userDomainsCollection = new  AngularFirestoreCollection();
   }
 

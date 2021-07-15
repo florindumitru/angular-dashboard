@@ -1,3 +1,4 @@
+import { HttpAdminFirestoreService } from './../../services/http/http-admin-firestore.service';
 import { Injectable, NgZone } from '@angular/core';
 import { User } from "../../../shared/models/user";
 import  auth from 'firebase/app';
@@ -21,7 +22,8 @@ export class AuthService {
     public afAuth: AngularFireAuth, // Inject Firebase auth service
     public router: Router,
     public ngZone: NgZone, // NgZone service to remove outside scope warning
-    private httpFirestoreSv: HttpFirestoreService
+    private httpFirestoreSv: HttpFirestoreService,
+    private httpAdminFirestoreSv: HttpAdminFirestoreService
   ) {
     /* Saving user data in localstorage when
     logged in and setting up null when logged out */
@@ -152,6 +154,7 @@ export class AuthService {
       localStorage.clear();
       this.userData = undefined;
       this.httpFirestoreSv.clearData();
+      this.httpAdminFirestoreSv.clearData();
       this.router.navigate(['login']);
     })
   }

@@ -1,3 +1,4 @@
+import { takeUntil } from 'rxjs/operators';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -10,6 +11,7 @@ import { ToastNotificationService, ToastServicePosition, ToastServiceType } from
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth/services/auth.service';
+import { Subject } from 'rxjs';
 
 
 @Component({
@@ -18,6 +20,8 @@ import { AuthService } from '../auth/services/auth.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements AfterViewInit {
+
+  protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
   subdomainFormControl = new FormControl('', [
     Validators.required,
@@ -65,14 +69,18 @@ export class DashboardComponent implements AfterViewInit {
   applyFilter(event: any) {
     let filterValue = event.target.value
     this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.dataSource.filterPredicate = (data: EditUserDomains, filter) => {
+      const dataStr =JSON.stringify(data.currentData).toLowerCase();
+      return dataStr.indexOf(filter) != -1; 
+    }
   }
 
-  deleteRow(index: number) {
-    const data = this.dataSource.data;
-    data.splice((this.paginator.pageIndex * this.paginator.pageSize) + index, 1);
+  // deleteRow(index: number) {
+  //   const data = this.dataSource.data;
+  //   data.splice((this.paginator.pageIndex * this.paginator.pageSize) + index, 1);
 
-    this.dataSource.data = data;
-  }
+  //   this.dataSource.data = data;
+  // }
 
   confirmEditCreate(editUserRow: EditUserDomains) {
     if (!editUserRow.validator.valid) {
@@ -118,7 +126,7 @@ export class DashboardComponent implements AfterViewInit {
     if (user && user.uid) {
       let userDomain = new UserDomains('', user.uid, subdomain, ipfsLink, Date.now().toString());
       let pureDomainObj = Object.assign({}, userDomain);
-      this.httpFirestoreSv.addUserDomains(pureDomainObj)
+      this.httpFirestoreSv.addUserDomains(pureDomainObj)!
       .then((res) => {
         this.clearAddUserDomainInputs();
         this.toastNotificationSv.showToast('Domain added with success', ToastServiceType.success, ToastServicePosition.topCenter);
@@ -138,10 +146,7 @@ export class DashboardComponent implements AfterViewInit {
 
   getUserDomainsIfLoggedUser() {
       this.afAuth.onAuthStateChanged((user) => {
-      if (!user) {
-        console.error('not logged');
-        // return;
-      }else {
+      if (user) {
         this.getUserDomains();
       }
     });
@@ -150,7 +155,9 @@ export class DashboardComponent implements AfterViewInit {
 
   getUserDomains() {
       this.isLoadingDomains = true;
-      this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
+      this.httpFirestoreSv.getUserDomains()!
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((res: any) => {
         this.ELEMENT_DATA = [];
         res.forEach((element: any) => {
           this.ELEMENT_DATA.push({
@@ -177,5 +184,7 @@ export class DashboardComponent implements AfterViewInit {
     this.dataSource.data = [];
     this.ELEMENT_DATA = [];
     this.ELEMENT_DATA_FROM_BACK = [];
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }
