@@ -8,6 +8,7 @@ import { FirebaseAuthGuard } from './core/auth/guard/firebase-auth.guard';
 import { LoginComponent } from './core/auth/login/login.component';
 import { SignupComponent } from './core/auth/signup/signup.component';
 import { DashboardComponent } from './core/dashboard/dashboard.component';
+import { ForgotPasswordComponent } from './core/auth/forgot-password/forgot-password.component';
 import { SidenavComponent } from './core/sidenav/sidenav.component';
 
 const routes: Routes = [
@@ -31,6 +32,7 @@ const routes: Routes = [
   },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: '**', redirectTo: '/login', pathMatch: 'full' },
 ];
 

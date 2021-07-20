@@ -1,12 +1,13 @@
 import { HttpAdminFirestoreService } from './../../services/http/http-admin-firestore.service';
 import { Injectable, NgZone } from '@angular/core';
 import { User } from "../../../shared/models/user";
-import  auth from 'firebase/app';
+import auth from 'firebase/app';
 import { AngularFireAuth } from "@angular/fire/auth";
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Router } from "@angular/router";
 import { HttpFirestoreService } from '../../services/http/http-firestore.service';
 import { UserDomains } from 'src/app/shared/models/user-domains';
+import { ToastNotificationService, ToastServicePosition, ToastServiceType } from '../../services/toast/toast-notification.service';
 
 
 @Injectable({
@@ -23,7 +24,8 @@ export class AuthService {
     public router: Router,
     public ngZone: NgZone, // NgZone service to remove outside scope warning
     private httpFirestoreSv: HttpFirestoreService,
-    private httpAdminFirestoreSv: HttpAdminFirestoreService
+    private httpAdminFirestoreSv: HttpAdminFirestoreService,
+    private toastNotificationSv: ToastNotificationService,
   ) {
     /* Saving user data in localstorage when
     logged in and setting up null when logged out */
@@ -40,7 +42,7 @@ export class AuthService {
   }
 
   isAdmin() {
-    if (this.userData &&  this.userData.uid === this.adminUid){
+    if (this.userData && this.userData.uid === this.adminUid) {
       return true;
     }
     return false;
@@ -69,8 +71,9 @@ export class AuthService {
       .then((result: { user: any; }) => {
         /* Call the SendVerificaitonMail() function when new user sign
         up and returns promise */
-        this.SendVerificationMail();
+        // this.SendVerificationMail();
         // route to login
+        result.user.sendEmailVerification();
         this.router.navigate(['login']);
         this.SetUserData(result.user);
       }).catch((error: { message: any; }) => {
@@ -79,21 +82,16 @@ export class AuthService {
   }
 
   // Send email verfificaiton when new user sign up
-  SendVerificationMail() {
-    // return this.afAuth.currentUser.sendEmailVerification()
-    // .then(() => {
-    //   this.router.navigate(['verify-email-address']);
-    // })
-  }
+  // SendVerificationMail() {
+  //   return this.afAuth.currentUser.sendEmailVerification()
+  //   .then(() => {
+  //     this.router.navigate(['verify-email-address']);
+  //   })
+  // }
 
   // Reset Forggot password
   ForgotPassword(passwordResetEmail: any) {
     return this.afAuth.sendPasswordResetEmail(passwordResetEmail)
-    .then(() => {
-      window.alert('Password reset email sent, check your inbox.');
-    }).catch((error: any) => {
-      window.alert(error)
-    })
   }
 
   // Returns true when user is looged in and email is verified
@@ -101,7 +99,7 @@ export class AuthService {
   get isLoggedIn(): boolean {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     // return (user !== null && user.emailVerified !== false) ? true : false;
-    return (user !== null && user.uid ) ? true : false;
+    return (user !== null && user.uid) ? true : false;
   }
 
   // Sign in with Google
@@ -112,14 +110,14 @@ export class AuthService {
   // Auth logic to run auth providers
   AuthLogin(provider: any) {
     return this.afAuth.signInWithPopup(provider)
-    .then((result: { user: any; }) => {
-       this.ngZone.run(() => {
+      .then((result: { user: any; }) => {
+        this.ngZone.run(() => {
           this.router.navigate(['dashboard']);
         })
-      this.SetUserData(result.user);
-    }).catch((error: any) => {
-      window.alert(error)
-    })
+        this.SetUserData(result.user);
+      }).catch((error: any) => {
+        window.alert(error)
+      })
   }
 
   /* Setting up user data when sign in with username/password,
@@ -137,14 +135,30 @@ export class AuthService {
     return userRef.set(userData, {
       merge: true
     })
-    .then(res=> {
-      this.router.navigate(['dashboard']);
-      // console.log(res);
-    })
-    .catch((err: any) => {
-      console.error(err);
-    });
+      .then(res => {
+        this.router.navigate(['dashboard']);
+        // console.log(res);
+      })
+      .catch((err: any) => {
+        console.error(err);
+      });
 
+  }
+
+
+  changePassword(newPassword: string) {
+  return  this.afAuth.currentUser.then(
+      (user: any) => {
+        user.updatePassword(newPassword)
+          .then(() =>{
+            this.toastNotificationSv.showToast('Password changed!', ToastServiceType.success, ToastServicePosition.topCenter);
+          })
+          .catch((error: any) => {
+            console.error(error);
+            this.toastNotificationSv.showToast(error, ToastServiceType.danger, ToastServicePosition.topCenter);
+          })
+      }
+    );
   }
 
   // Sign out

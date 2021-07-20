@@ -34,7 +34,7 @@ export class AdminDashboardComponent implements AfterViewInit {
   ELEMENT_DATA: EditUserDomains[] = [];
 
   // displayedColumns: string[] = ['subdomain', 'ipfsLink', 'datetime', 'action'];
-  displayedColumns: string[] = ['userUid','userEmail', 'subdomain', 'ipfsLink', 'action'];
+  displayedColumns: string[] = ['userUid', 'userEmail', 'subdomain', 'ipfsLink', 'action'];
 
   dataSource: MatTableDataSource<EditUserDomains> = new MatTableDataSource<EditUserDomains>();
   selected = 'option1';
@@ -49,7 +49,7 @@ export class AdminDashboardComponent implements AfterViewInit {
 
   public isLoadingDomains: boolean = false;
   public isLoadingAddDomains: boolean = false;
-
+  private eventFilter: any;
 
   constructor(
     private httpAdminFirestoreSv: HttpAdminFirestoreService,
@@ -65,20 +65,15 @@ export class AdminDashboardComponent implements AfterViewInit {
   }
 
   applyFilter(event: any) {
+    this.eventFilter = event;
     let filterValue = event.target.value
     this.dataSource.filter = filterValue.trim().toLowerCase();
     this.dataSource.filterPredicate = (data: EditUserDomains, filter) => {
-      const dataStr =JSON.stringify(data.currentData).toLowerCase();
-      return dataStr.indexOf(filter) != -1; 
+      const dataStr = JSON.stringify(data.currentData).toLowerCase();
+      return dataStr.indexOf(filter) != -1;
     }
   }
 
-  // deleteRow(index: number) {
-  //   const data = this.dataSource.data;
-  //   data.splice((this.paginator.pageIndex * this.paginator.pageSize) + index, 1);
-
-  //   this.dataSource.data = data;
-  // }
 
   confirmEditCreate(editUserRow: EditUserDomains) {
     if (!editUserRow.validator.valid) {
@@ -95,12 +90,12 @@ export class AdminDashboardComponent implements AfterViewInit {
   updateUserDomain(userDomain: UserDomains) {
     let pureDomainObj = Object.assign({}, userDomain);
     this.httpAdminFirestoreSv.updateUserDomainsByAdmin(pureDomainObj)
-    .then(result => {
-      this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
-    })
-    .catch(error => {
-      console.log(error);
-    });
+      .then(result => {
+        this.toastNotificationSv.showToast('Update with success', ToastServiceType.success, ToastServicePosition.topCenter);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
 
@@ -111,13 +106,13 @@ export class AdminDashboardComponent implements AfterViewInit {
   deleteUserDomain(userDomain: EditUserDomains) {
     let pureDomainObj = Object.assign({}, userDomain.originalData);
     this.httpAdminFirestoreSv.deleteUserDomainByAdmin(pureDomainObj)
-    .then(result => {
-      this.toastNotificationSv.showToast('Deleted with success', ToastServiceType.success, ToastServicePosition.topCenter);
-      this.getAllUsersWithDomains();
-    })
-    .catch(error => {
-      console.log(error);
-    });
+      .then(result => {
+        this.toastNotificationSv.showToast('Deleted with success', ToastServiceType.success, ToastServicePosition.topCenter);
+        this.getAllUsersWithDomains();
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   clearAddUserDomainInputs() {
@@ -160,65 +155,43 @@ export class AdminDashboardComponent implements AfterViewInit {
   }
 
 
-  // getUserDomains() {
-  //   this.isLoadingDomains = true;
-  //   this.httpFirestoreSv.getUserDomains().subscribe((res: any) => {
-  //     this.ELEMENT_DATA = [];
-  //     res.forEach((element: any) => {
-  //       this.ELEMENT_DATA.push({
-  //         currentData: element,
-  //         originalData: element,
-  //         editable: false,
-  //         validator: this.editForm(element)
-  //       });
-  //     });
-
-  //     this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-  //     this.dataSource.paginator = this.paginator;
-  //     this.dataSource.sort = this.sort;
-  //     this.isLoadingDomains = false;
-  //   }, error => {
-  //     console.error(error);
-  //     // this.toastNotificationSv.showToast(error.message? error.message : "Error getting data", ToastServiceType.danger, ToastServicePosition.topCenter);
-  //     this.isLoadingDomains = false;
-  //   });
-  // }
-
-
   getAllUsersWithDomains() {
     this.httpAdminFirestoreSv.getAllUsersAndDomains()
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe(usersDomainsObservables => {
-      this.ELEMENT_DATA = [];
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(usersDomainsObservables => {
+        this.ELEMENT_DATA = [];
 
-      combineLatest(usersDomainsObservables as [])
-        .pipe(
-          take(1))
-        .subscribe(allUsersDomains => {
+        combineLatest(usersDomainsObservables as [])
+          .pipe(
+            take(1))
+          .subscribe(allUsersDomains => {
 
-          allUsersDomains.forEach((userDomains: any) => {
-            userDomains.forEach((userDomain: UserDomains) => {
-              this.ELEMENT_DATA.push({
-                currentData: userDomain,
-                originalData: userDomain,
-                editable: false,
-                validator: this.editForm(userDomain)
+            allUsersDomains.forEach((userDomains: any) => {
+              userDomains.forEach((userDomain: UserDomains) => {
+                this.ELEMENT_DATA.push({
+                  currentData: userDomain,
+                  originalData: userDomain,
+                  editable: false,
+                  validator: this.editForm(userDomain)
+                });
               });
             });
-          });
 
-          this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-          this.isLoadingDomains = false;
+            this.dataSource = new MatTableDataSource(this.ELEMENT_DATA);
+             if (this.eventFilter) {
+              this.applyFilter(this.eventFilter);
+            }
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+            this.isLoadingDomains = false;
 
-        }, error => {
-          console.log('CombineLatest error ', error);
-        })
+          }, error => {
+            console.error('CombineLatest error ', error);
+          })
 
-    }, error => {
-      console.error("Get users domains Observables error: ", error);
-    });
+      }, error => {
+        console.error("Get users domains Observables error: ", error);
+      });
   }
 
   ngOnDestroy() {

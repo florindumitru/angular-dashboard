@@ -25,6 +25,7 @@ import { AccountComponent } from './core/account/account.component';
 import { ChangePasswordComponent } from './core/auth/change-password/change-password.component';
 import { ToastNotificationsModule } from "ngx-toast-notifications";
 import { AdminDashboardComponent } from './core/admin-dashboard/admin-dashboard.component';
+import { ForgotPasswordComponent } from './core/auth/forgot-password/forgot-password.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { AdminDashboardComponent } from './core/admin-dashboard/admin-dashboard.
     DashboardComponent,
     AccountComponent,
     ChangePasswordComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    ForgotPasswordComponent
   ],
   imports: [
     BrowserModule,
