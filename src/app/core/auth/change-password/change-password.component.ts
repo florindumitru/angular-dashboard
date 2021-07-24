@@ -26,7 +26,6 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   changePassword(form: any) {
-    console.log(form.value)
     if (form.value.newPassword === form.value.confirmNewPassword) {
       this.authFirestoreSv.changePassword(form.value.newPassword)
         .then(() => {

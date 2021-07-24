@@ -61,7 +61,7 @@ export class AuthService {
         });
         // console.log(result.user);
       }).catch((error: { message: any; }) => {
-        window.alert(error.message)
+        this.toastNotificationSv.showErrorToast(error.message,ToastServicePosition.topCenter);
       })
   }
 
@@ -77,7 +77,7 @@ export class AuthService {
         this.router.navigate(['login']);
         this.SetUserData(result.user);
       }).catch((error: { message: any; }) => {
-        window.alert(error.message)
+        this.toastNotificationSv.showErrorToast(error.message,ToastServicePosition.topCenter);
       })
   }
 
@@ -116,7 +116,7 @@ export class AuthService {
         })
         this.SetUserData(result.user);
       }).catch((error: any) => {
-        window.alert(error)
+        this.toastNotificationSv.showErrorToast(error,ToastServicePosition.topCenter);
       })
   }
 
