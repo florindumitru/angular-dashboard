@@ -2,7 +2,7 @@ export const environment = {
   production: true,
   firebase: {
     apiKey: "AIzaSyDoFqx2pn8GmMz4VwbGOiwfwIdURHwHR1E",
-    authDomain: "angular-dashboard.github.io",
+    authDomain: "ipds-app.firebaseapp.com",
     projectId: "ipds-app",
     storageBucket: "ipds-app.appspot.com",
     messagingSenderId: "805505372614",
